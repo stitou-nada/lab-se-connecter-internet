@@ -39,6 +39,7 @@ class TaskDao {
     }
 
 
+
     fun getAllTasks(): MutableList<TaskEntry> {
         return TaskDao.list_tasks
     }

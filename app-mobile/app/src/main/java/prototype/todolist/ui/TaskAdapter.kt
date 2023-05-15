@@ -13,10 +13,10 @@ import prototype.todolist.R
 import prototype.todolist.data.TaskRepository
 
 
-class TaskAdapter(navController: NavController) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+class TaskAdapter(navController: NavController, taskViewModel : TaskViewModel) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
-    private val taskRepository = TaskRepository()
     private val navController = navController
+    private val taskViewModel = taskViewModel
 
     class TaskViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         val taskTitle: TextView = view.findViewById<Button>(R.id.taskTitle)
@@ -34,11 +34,12 @@ class TaskAdapter(navController: NavController) : RecyclerView.Adapter<TaskAdapt
     }
 
     override fun getItemCount(): Int {
-        return taskRepository.getAllTasks().size
+
+        return taskViewModel.list_tasks.value!!.size
     }
 
     override fun onBindViewHolder(taskViewHolder: TaskViewHolder, position: Int) {
-        val task = this.taskRepository.getAllTasks()[position]
+        val task = taskViewModel.list_tasks.value!![position]
         taskViewHolder.taskTitle.text = task.title
         taskViewHolder.taskPriority.text = task.priority.toString()
         taskViewHolder.taskTimestamp.text = task.timestamp.toString()

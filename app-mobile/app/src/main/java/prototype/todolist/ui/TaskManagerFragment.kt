@@ -11,6 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,10 +22,13 @@ import prototype.todolist.databinding.FragmentTaskManagerBinding
 
 class TaskManagerFragment : Fragment() {
 
+    private val viewModel: TaskViewModel by viewModels()
+
     private var _binding: FragmentTaskManagerBinding? = null
     private val binding get() = _binding!!
     private lateinit var recyclerView: RecyclerView
     private lateinit var taskAdapter : TaskAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,13 +44,25 @@ class TaskManagerFragment : Fragment() {
         // Retrieve and inflate the layout for this fragment
         _binding = FragmentTaskManagerBinding.inflate(inflater, container, false)
         val view = binding.root
+
+
+
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = binding.recyclerView
 
-        this.taskAdapter =  TaskAdapter(view.findNavController())
+        this.viewModel.getTasks()
+
+        this.viewModel.list_tasks.observe(viewLifecycleOwner, Observer {
+            Toast.makeText(view.context, "observe Status", Toast.LENGTH_SHORT).show()
+
+        })
+
+
+
+        this.taskAdapter =  TaskAdapter(view.findNavController(), this.viewModel)
         binding.apply {
             recyclerView.layoutManager = LinearLayoutManager(context)
             recyclerView.adapter =  taskAdapter

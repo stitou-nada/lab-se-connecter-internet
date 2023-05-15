@@ -14,6 +14,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+use App\Http\Controllers\API\TaskController;
+
+
+Route::apiResource("tasks", TaskController::class); // Les routes "users.*" de l'API
+
+
+// Route::post('/tasks', [TaskController::class, 'store']);
+// Route::get('/tasks', [TaskController::class, 'index']);
+// Route::put('/tasks/complete', [TaskController::class, 'complete']);
+// Route::delete('/tasks/{task}', [TaskController::class, 'delete']);
+// Route::get('/tasks/filter', [TaskController::class, 'filter']);

@@ -44,6 +44,9 @@ class TaskFormFragment : Fragment() {
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+
+
         // Add
         if(taskId == 0){
             this.task = taskRepository.newTask()
