@@ -1,20 +1,26 @@
 <?php
 
 namespace App\Http\Controllers\API;
-
+ 
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    public function index()
+    public function findAll()
     {
         // On récupère tous les tâches
         $Tasks = Task::all();
 
         // On retourne les informations des tâches en JSON
         return response()->json($Tasks);
+    }
+
+    public function findById($id){
+        $task = Task::find($id);
+        return response()->json($task);
+
     }
 
     public function store(Request $request)

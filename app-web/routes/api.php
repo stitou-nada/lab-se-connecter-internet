@@ -21,7 +21,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\TaskController;
 
 
-Route::apiResource("tasks", TaskController::class); // Les routes "users.*" de l'API
+// Route::apiResource("tasks", TaskController::class); // Les routes "users.*" de l'API
+
+
+Route::get('/tasks/find_all/', [TaskController::class, 'findAll']);
+Route::get('/tasks/find_by_id/{id}', [TaskController::class, 'findById']);
 
 
 // Route::post('/tasks', [TaskController::class, 'store']);

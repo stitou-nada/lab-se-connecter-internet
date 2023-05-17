@@ -1,37 +1,32 @@
 package prototype.todolist.ui
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
-import prototype.todolist.data.TaskApi
-import prototype.todolist.data.TaskEntry
-import prototype.todolist.data.TaskRepository
+import androidx.lifecycle.liveData
+import kotlinx.coroutines.Dispatchers
+import prototype.todolist.repositoryies.TasksRepository
+import prototype.todolist.utils.Resource
 
 class TaskViewModel : ViewModel()  {
 
-    private val taskRepository = TaskRepository()
+    private val tasksRepository = TasksRepository()
 
-    public var list_tasks = MutableLiveData<List<TaskEntry>>()
-
-    init {
-        list_tasks.value = mutableListOf<TaskEntry>()
-    }
-
-    public fun getTasks() {
-        viewModelScope.launch {
-            try {
-                val listResult = TaskApi.retrofitService.getTasks()
-                list_tasks.value = listResult
-            } catch (e: Exception) {
-                 val msg =   "Failure: ${e.message}"
-            }
+    fun getTasks() = liveData(Dispatchers.IO) {
+        emit(Resource.loading(data = null))
+        try {
+            emit(Resource.success(data = tasksRepository.getTasks()))
+        } catch (exception: Exception) {
+            emit(Resource.error(data = null, message = exception.message ?: "Error Occurred!"))
         }
     }
 
-//    public fun setValue(msg:String){
-//        _status.value = msg
-//    }
+    fun findById(id : Int) = liveData(Dispatchers.IO) {
+        emit(Resource.loading(data = null))
+        try {
+            emit(Resource.success(data = tasksRepository.findById(id)))
+        } catch (exception: Exception) {
+            emit(Resource.error(data = null, message = exception.message ?: "Error Occurred!"))
+        }
+    }
+
+
 }

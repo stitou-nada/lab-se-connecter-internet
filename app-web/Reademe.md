@@ -1,5 +1,16 @@
 # Lab - Se connecter à internet
 
+## Installation 
+
+
+````conf
+composer install
+npm install
+php artisan migrate
+php artisan db:seed
+npm run build
+````
+
 ## Création d'API
 
 - Création du projet laravel 
