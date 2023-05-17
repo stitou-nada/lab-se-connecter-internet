@@ -17,103 +17,56 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import prototype.todolist.R
+import prototype.todolist.databinding.FragmentTaskFormBinding
 import prototype.todolist.databinding.FragmentTaskManagerBinding
 import prototype.todolist.models.Task
 import prototype.todolist.utils.Status
 
 
-class TaskManagerFragment : Fragment() {
+class TaskManagerFragment : BaseFragment<FragmentTaskManagerBinding>(FragmentTaskManagerBinding::inflate) {
 
     private val viewModel: TaskViewModel by viewModels()
     private lateinit var adapter: TaskRecyclerViewAdapter
-    private lateinit var binding: FragmentTaskManagerBinding
-    private lateinit var recyclerView: RecyclerView
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-
-        // ViewBinding
-        binding = FragmentTaskManagerBinding.inflate(inflater, container, false)
-        val view = binding.root
-
-
-        return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-        // Init recyclerView
+    override fun init(view: View) {
+        this.setProgressBar(R.id.progressBar)
         adapter =  TaskRecyclerViewAdapter(arrayListOf(), view.findNavController() )
         binding.apply {
             recyclerView.layoutManager = LinearLayoutManager(context)
             recyclerView.adapter =  adapter
-            floatingActionButton.setOnClickListener{
-
-                val action = TaskManagerFragmentDirections.actionTaskManagerFragmentToTaskFormFragment(taskid = 0 )
-                view.findNavController().navigate(action)
-            }
-
         }
-
 
         // getUsers observe
         viewModel.getTasks().observe(viewLifecycleOwner, Observer {
             when (it.status) {
+                Status.LOADING -> this.showProgressBar()
+                Status.ERROR -> this.showResponseError(it.message.toString())
                 Status.SUCCESS -> {
                     binding.recyclerView.visibility = View.VISIBLE
                     binding.progressBar.visibility = View.GONE
-                    retrieveList(it.data!!)
-                }
-                Status.ERROR -> {
-                    binding.recyclerView.visibility = View.VISIBLE
-                    binding.progressBar.visibility = View.GONE
-                    Log.d("tasks", it.message.toString())
-                    Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
-                }
-                Status.LOADING -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                    binding.recyclerView.visibility = View.GONE
+                    adapter.apply {
+                        addTasks(it.data!!)
+                        notifyDataSetChanged()
+                    }
                 }
             }
         })
 
-
-
-
-
-
     }
 
-    private fun retrieveList(tasks: List<Task>) {
-        adapter.apply {
-            addTasks(tasks)
-            notifyDataSetChanged()
+    override fun listeners(view: View) {
+        binding.apply {
+            floatingActionButton.setOnClickListener{
+                val action = TaskManagerFragmentDirections.actionTaskManagerFragmentToTaskFormFragment(taskid = 0 )
+                view.findNavController().navigate(action)
+            }
         }
     }
 
 
-    /**
-     * Frees the binding object when the Fragment is destroyed.
-     */
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//        binding = null
-//    }
-
     // Todo : Implémentez le code du button Ajouter une tâche dans le menu
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.layout_menu, menu)
-
-
     }
 
 

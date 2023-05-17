@@ -4,51 +4,33 @@ package prototype.todolist.ui
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
+import prototype.todolist.R
 import prototype.todolist.models.Task
-import prototype.todolist.repositoryies.TasksRepository
 import prototype.todolist.databinding.FragmentTaskFormBinding
 import prototype.todolist.utils.Status
 
-class TaskFormFragment : Fragment() {
-
-    private val viewModel: TaskViewModel by viewModels()
+class TaskFormFragment : BaseFragment<FragmentTaskFormBinding>(FragmentTaskFormBinding::inflate) {
 
     companion object {
         val TASKID = "taskid" // Il resemble à une variable static
     }
 
-    private var _binding: FragmentTaskFormBinding? = null
-    private val binding get() = _binding!!
+    private val viewModel: TaskViewModel by viewModels()
     private var taskId =  0 // La valeur 0 signifie que le formulaire est dans l'état d'insertion
-    private val tasksRepository = TasksRepository()
     private  var task : Task? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun init(view: View) {
+
         arguments?.let {
             taskId = it.getInt(TASKID)
         }
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Retrieve and inflate the layout for this fragment
-        _binding = FragmentTaskFormBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        this.setProgressBar(R.id.progressBar)
 
         // Add
         if(taskId == 0){
@@ -63,33 +45,26 @@ class TaskFormFragment : Fragment() {
             // Call : FindById
             viewModel.findById(taskId).observe(viewLifecycleOwner, Observer {
                 when (it.status) {
+                    Status.LOADING -> this.showProgressBar()
+                    Status.ERROR -> this.showResponseError(it.message.toString())
                     Status.SUCCESS -> {
-                        binding.form.visibility = View.VISIBLE
-                        binding.progressBar.visibility = View.GONE
-
+                        this.hideProgressBar()
                         binding.apply {
                             task = it.data!!
                             editTaskTitle.setText(task?.title)
                             spinner.setSelection(task?.priority!!)
                         }
                     }
-                    Status.ERROR -> {
-                        binding.form.visibility = View.VISIBLE
-                        binding.progressBar.visibility = View.GONE
-                        Log.d("tasks", it.message.toString())
-                        Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
-                    }
-                    Status.LOADING -> {
-                        binding.progressBar.visibility = View.VISIBLE
-                        binding.form.visibility = View.GONE
-                    }
                 }
             })
 
         }
 
-        binding.apply {
 
+    }
+
+    override fun listeners(view: View) {
+        binding.apply {
             btnSave.setOnClickListener {
                 if(TextUtils.isEmpty(editTaskTitle.text)){
                     Toast.makeText(context, "It's empty!", Toast.LENGTH_SHORT).show()
@@ -107,23 +82,14 @@ class TaskFormFragment : Fragment() {
 
                 viewModel.save(task).observe(viewLifecycleOwner, Observer {
                     when (it.status) {
+                        Status.LOADING -> showProgressBar()
+                        Status.ERROR -> showResponseError(it.message.toString())
                         Status.SUCCESS -> {
                             binding.form.visibility = View.VISIBLE
                             binding.progressBar.visibility = View.GONE
-
                             Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
                             val action = TaskFormFragmentDirections.actionTaskFormFragmentToTaskManagerFragment()
                             view.findNavController().navigate(action)
-                        }
-                        Status.ERROR -> {
-                            binding.form.visibility = View.VISIBLE
-                            binding.progressBar.visibility = View.GONE
-                            Log.d("tasks", it.message.toString())
-                            Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
-                        }
-                        Status.LOADING -> {
-                            binding.progressBar.visibility = View.VISIBLE
-                            binding.form.visibility = View.GONE
                         }
                     }
                 })
@@ -132,41 +98,23 @@ class TaskFormFragment : Fragment() {
 
             }
             btnDelete.setOnClickListener {
-
-                // Call : Delete
                 viewModel.delete(taskId).observe(viewLifecycleOwner, Observer {
                     when (it.status) {
+                        Status.LOADING -> showProgressBar()
+                        Status.ERROR -> showResponseError(it.message.toString())
                         Status.SUCCESS -> {
                             binding.form.visibility = View.VISIBLE
                             binding.progressBar.visibility = View.GONE
                             Toast.makeText(activity, "${task?.title} : Deleted", Toast.LENGTH_LONG).show()
                         }
-                        Status.ERROR -> {
-                            binding.form.visibility = View.VISIBLE
-                            binding.progressBar.visibility = View.GONE
-                            Log.d("tasks", it.message.toString())
-                            Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
-                        }
-                        Status.LOADING -> {
-                            binding.progressBar.visibility = View.VISIBLE
-                            binding.form.visibility = View.GONE
-                        }
                     }
                 })
-
                 val action = TaskFormFragmentDirections.actionTaskFormFragmentToTaskManagerFragment()
                 view.findNavController().navigate(action)
-
             }
-
         }
 
     }
-
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//        _binding = null
-//    }
 
 
 }
