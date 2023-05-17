@@ -1,6 +1,7 @@
 package prototype.todolist.repositoryies
 
 import prototype.todolist.dao.TasksDao
+import prototype.todolist.models.Task
 
 class TasksRepository () {
 
@@ -10,6 +11,19 @@ class TasksRepository () {
 
     suspend fun findById(id : Int) = tasksDao.findById(id)
 
+    suspend fun delete(id : Int) = tasksDao.delete(id)
+
+    suspend fun save(task : Task){
+        if(task.id == 0){
+            // save
+            tasksDao.save(task)
+        }else{
+            // update
+            tasksDao.update(task)
+
+        }
+
+    }
 
 //    private fun insert(task: Task) = taskDao.insert(task)
 //    private fun update(task: Task) = taskDao.update(task)

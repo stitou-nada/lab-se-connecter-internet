@@ -55,6 +55,7 @@ class TaskFormFragment : Fragment() {
         if(taskId == 0){
             this.task = Task(0,"",0, System.currentTimeMillis())
             binding.btnDelete.visibility = View.INVISIBLE
+            binding.progressBar.visibility = View.GONE
         }
         // Update
         else
@@ -72,9 +73,6 @@ class TaskFormFragment : Fragment() {
                             editTaskTitle.setText(task?.title)
                             spinner.setSelection(task?.priority!!)
                         }
-
-
-
                     }
                     Status.ERROR -> {
                         binding.form.visibility = View.VISIBLE
@@ -105,16 +103,58 @@ class TaskFormFragment : Fragment() {
                     taskTitle,
                     priority,
                     task?.timestamp!!
+
                 )
-//                tasksRepository.save(task)
-                Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
-                val action = TaskFormFragmentDirections.actionTaskFormFragmentToTaskManagerFragment()
-                view.findNavController().navigate(action)
+
+                viewModel.save(task).observe(viewLifecycleOwner, Observer {
+                    when (it.status) {
+                        Status.SUCCESS -> {
+                            binding.form.visibility = View.VISIBLE
+                            binding.progressBar.visibility = View.GONE
+
+                            Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
+                            val action = TaskFormFragmentDirections.actionTaskFormFragmentToTaskManagerFragment()
+                            view.findNavController().navigate(action)
+                        }
+                        Status.ERROR -> {
+                            binding.form.visibility = View.VISIBLE
+                            binding.progressBar.visibility = View.GONE
+                            Log.d("tasks", it.message.toString())
+                            Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
+                        }
+                        Status.LOADING -> {
+                            binding.progressBar.visibility = View.VISIBLE
+                            binding.form.visibility = View.GONE
+                        }
+                    }
+                })
+//
+
 
             }
             btnDelete.setOnClickListener {
-//                tasksRepository.delete(taskId!!)
-                Toast.makeText(context, "Deleted!", Toast.LENGTH_SHORT).show()
+
+                // Call : Delete
+                viewModel.delete(taskId).observe(viewLifecycleOwner, Observer {
+                    when (it.status) {
+                        Status.SUCCESS -> {
+                            binding.form.visibility = View.VISIBLE
+                            binding.progressBar.visibility = View.GONE
+                            Toast.makeText(activity, "${task?.title} : Deleted", Toast.LENGTH_LONG).show()
+                        }
+                        Status.ERROR -> {
+                            binding.form.visibility = View.VISIBLE
+                            binding.progressBar.visibility = View.GONE
+                            Log.d("tasks", it.message.toString())
+                            Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
+                        }
+                        Status.LOADING -> {
+                            binding.progressBar.visibility = View.VISIBLE
+                            binding.form.visibility = View.GONE
+                        }
+                    }
+                })
+
                 val action = TaskFormFragmentDirections.actionTaskFormFragmentToTaskManagerFragment()
                 view.findNavController().navigate(action)
 

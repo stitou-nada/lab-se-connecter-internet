@@ -5,11 +5,14 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
     public function findAll()
     {
+        error_log('findAll');
+
         // On récupère tous les tâches
         $Tasks = Task::all();
 
@@ -18,6 +21,9 @@ class TaskController extends Controller
     }
 
     public function findById($id){
+
+        error_log('findById');
+
         $task = Task::find($id);
         return response()->json($task);
 
@@ -25,6 +31,9 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
+        error_log('store' );
+        error_log($request);
+
         // La validation de données
         $this->validate($request, [
            'title' => 'required|max:100'
@@ -48,6 +57,11 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $Task)
     {
+        error_log('update' . $Task );
+        error_log('update' . $request );
+        
+
+
         // La validation de données
         $this->validate($request, [
            'title' => 'required|max:100'
@@ -58,15 +72,18 @@ class TaskController extends Controller
             "title" => $request->title,
             "priority" => $request->priority
         ]);
-
+       // dd($request->title);
         // On retourne la réponse JSON
-        return response()->json();
+        return response()->json($Task);
     }
 
     public function destroy(Task $Task)
     {
+        error_log('destroy' . $Task->id );
         // On supprime l'tâche
         $Task->delete();
+
+       
 
         // On retourne la réponse JSON
         return response()->json();
