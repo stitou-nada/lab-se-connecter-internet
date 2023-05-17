@@ -19,7 +19,6 @@
 ````
 
 
-
 ## Références 
 
 - https://www.devopsschool.com/blog/how-to-test-laravel-api-from-localhost-to-android-emulator/
