@@ -9,8 +9,8 @@ class TasksDao {
 
     companion object{
 
-        private var BASE_URL = "http://192.168.100.146:8000/api/"
-
+//        private var BASE_URL = "http://192.168.2.46:8000/api/"
+        private var BASE_URL ="https://api.themoviedb.org/3/movie/popular?api_key=bcc4ff10c2939665232d75d8bf0ec093"
         private fun getRetrofit(): Retrofit {
             return Retrofit.Builder()
                 .baseUrl(BASE_URL)

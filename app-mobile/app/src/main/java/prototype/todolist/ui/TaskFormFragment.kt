@@ -20,7 +20,7 @@ class TaskFormFragment : BaseFragment<FragmentTaskFormBinding>(FragmentTaskFormB
         val TASKID = "taskid" // Il resemble à une variable static
     }
 
-    private val viewModel: TaskViewModel by viewModels()
+    private val viewModel: TaskViewModel  = TaskViewModel()
     private var taskId =  0 // La valeur 0 signifie que le formulaire est dans l'état d'insertion
     private  var task : Task? = null
 
